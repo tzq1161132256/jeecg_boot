@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.business.mdm.mapper.Drugstore4projectMapper">
+    <select id="getNoSalesDrugstore" parameterType="map" resultType="map">
+        SELECT
+        d.drugstorename as drugstorename ,
+        d.telphone as telphone
+        FROM drugstore4project d
+        LEFT JOIN (SELECT
+        distinct o.drugstorename
+        FROM `order` o
+        WHERE o.projectname = #{cm.projectname}
+        AND o.orderdate &gt;= DATE_ADD(CURDATE(), INTERVAL -DAY(CURDATE()) + 1 DAY)
+        AND o.orderdate &lt;  DATE_ADD(LAST_DAY(CURDATE()), INTERVAL 1 DAY)) x
+        ON d.drugstorename = x.drugstorename
+        WHERE x.drugstorename IS NULL
+        AND d.projectname = #{cm.projectname}
+        AND d.status = 'Y'
+        and d.deleted = 'N'
+
+    </select>
+</mapper>

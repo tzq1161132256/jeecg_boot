@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.jeecg.modules.business.trade.mapper.OrderMapper">
+    <select id="getLimitOrder" parameterType="map" resultType="map">
+        select
+        drugstorename,ordertype,DATE_FORMAT(orderdate,'%Y-%m-%d %H:%i') orderdate,o1.medname,o1.qty,o.ordercode,'' as time
+        from `order` o ,orderdetail o1 where o.id = o1.orderid
+
+        <if test="cm.projectname != null and cm.projectname != ''">
+            AND projectname = #{cm.projectname}
+        </if>
+        order BY o.orderdate DESC
+        <if test="cm.limit != null and cm.limit != ''">
+            limit #{cm.limit}
+        </if>
+    </select>
+
+    <select id="getLimitOrder4marketing" parameterType="map" resultType="map">
+        select
+        d.name AS drugstorename,o.ordertype,DATE_FORMAT(orderdate,'%Y-%m-%d %H:%i') orderdate,c.medname as medname,c.qty as qty,o.ordercode as ordercode,"" as time
+        from `order` o ,drugstore d inner join drugstore4project i on i.projectname = 'PBM（药康付）'   and d.id = i.drugstoreid  and i.marketingflag = 'Y'
+        , orderdetail c ,marketingmed k
+        where  o.projectname = 'PBM（药康付）'
+        and  o.orderdate <![CDATA[ >= ]]> str_to_date( '2019-07-15','%Y-%m-%d')
+        and o.remark = ''
+        and o.ordercode not in  ('b20000K10420190717132639','a20000K10420190717132604','k20000K10320190723150139','d10000K10320190721100246','p10000K10420190716092359')
+        and o.drugstoreid = d.id
+        and o.id = c.orderid AND c.medname = k.medname
+        order BY o.orderdate desc LIMIT 5
+    </select>
+</mapper>
